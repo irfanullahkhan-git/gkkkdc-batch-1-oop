@@ -1,41 +1,84 @@
-# Prerequisites
-*.d
+# VS Code specific files and folders
+.vscode/
+.vscode/*
+*.code-workspace
+.history/
 
-# Compiled Object files
-*.slo
-*.lo
+# Compiled executables
+*.exe
+*.out
+*.app
+
+# Object files
 *.o
 *.obj
+*.ko
+*.elf
 
 # Precompiled Headers
 *.gch
 *.pch
 
-# Linker files
-*.ilk
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+*.dll
+*.so
+*.so.*
+*.dylib
 
-# Debugger Files
+# Debug files
+*.dSYM/
+*.su
+*.idb
 *.pdb
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
 
-# Fortran module files
-*.mod
-*.smod
+# CMake
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+# Build directories
+build/
+Build/
+out/
+bin/
+target/
 
-# Executables
-*.exe
-*.out
-*.app
+# IDE specific
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
 
-# debug information files
-*.dwo
+# Windows specific
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Backup files
+*.bak
+*.tmp
+*.temp
+
+# Core dumps
+core
+core.*
