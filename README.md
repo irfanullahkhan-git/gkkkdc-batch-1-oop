@@ -1,6 +1,6 @@
 # Object-Oriented Programming in C++ - Part 1
 
-This repository contains C++ code examples demonstrating fundamental Object-Oriented Programming (OOP) concepts. Part 1 covers basic class structures, constructors, pointers, references, destructors, access specifiers, const functions, composition, aggregation, and inheritance.
+This repository contains C++ code examples demonstrating fundamental Object-Oriented Programming (OOP) concepts. Part 1 covers basic class structures, constructors, pointers, references, destructors, access specifiers, const functions, composition, aggregation, and various types of inheritance including single, multi-level, and multiple inheritance.
 
 ---
 
@@ -17,6 +17,9 @@ This repository contains C++ code examples demonstrating fundamental Object-Orie
 9. [Composition](#9-composition)
 10. [Aggregation](#10-aggregation)
 11. [Inheritance](#11-inheritance)
+12. [Access Specifiers in Inheritance](#12-access-specifiers-in-inheritance)
+13. [Multi-Level Inheritance](#13-multi-level-inheritance)
+14. [Multiple Inheritance](#14-multiple-inheritance)
 
 ---
 
@@ -774,6 +777,360 @@ s.study();      // Student-specific function
 
 ---
 
+## 12. Access Specifiers in Inheritance
+**File:** `12-AccessSpecifier-Inheritance.cpp`
+
+### Definition
+**Access specifiers in inheritance** control how members of the base class are accessible in the derived class and outside the class hierarchy. Understanding the visibility of inherited members is crucial for proper encapsulation.
+
+### Access Control and Visibility
+
+#### Public Members
+- Accessible anywhere the object is visible
+- Can be accessed from derived classes and outside the class
+
+#### Protected Members
+- Accessible in derived classes but not outside the class hierarchy
+- Perfect for members that should be inherited but not publicly accessible
+- Allows derived classes to use base class internals
+
+#### Private Members
+- Accessible only inside the base class itself
+- Not directly accessible in derived classes
+- Can only be accessed through public/protected methods
+
+### Access in Derived Classes
+
+| Base Class Member | Access in Derived Class | Access Outside Class |
+|-------------------|------------------------|---------------------|
+| Public | ✓ Yes | ✓ Yes |
+| Protected | ✓ Yes | ✗ No |
+| Private | ✗ No | ✗ No |
+
+### Example from Code
+```cpp
+class Person{
+    private:
+        string nic_no;      // Only accessible in Person class
+    
+    protected:
+        int age;            // Accessible in derived classes
+        
+    public:
+        string name;        // Accessible everywhere
+        
+        Person(string n, int a, string nic): name(n), age(a), nic_no(nic){
+        }
+        
+        void introduce(){
+            cout<<"Name: "<<name<<" Age: "<<age<<endl;
+        }
+};
+
+class Teacher : public Person{
+    string subject;
+    
+    public: 
+        Teacher(string n, int a, string nic, string s): Person(n, a, nic), subject(s){
+        }
+        
+        void displayTeacher(){
+            cout<<"Teacher Name: "<<name;      // OK: name is public
+            cout<<" Teacher Age: "<<age<<endl; // OK: age is protected
+            // cout<<nic_no;                    // ERROR: nic_no is private
+        }
+        
+        void teach(){
+            cout<<"Subject: "<<subject<<endl;
+        }
+};
+```
+
+### Usage
+```cpp
+Teacher t("Ali", 35, "1234567", "C++");
+t.displayTeacher();
+t.teach();
+
+// Direct access from outside
+cout<<t.name;     // OK: name is public
+// cout<<t.age;   // ERROR: age is protected
+// cout<<t.nic_no; // ERROR: nic_no is private
+```
+
+### Why Use Protected?
+- **Inheritance-Friendly:** Allows derived classes to access important data
+- **Encapsulation:** Hides implementation from external code
+- **Flexibility:** Derived classes can extend functionality using protected members
+- **Security:** More restrictive than public, more accessible than private
+
+### Key Points
+- Use `public` for interface that everyone should access
+- Use `protected` for members that derived classes need
+- Use `private` for internal implementation details
+- Protected members enable inheritance while maintaining encapsulation
+
+---
+
+## 13. Multi-Level Inheritance
+**File:** `13-multi-level-inheritance.cpp`
+
+### Definition
+**Multi-level inheritance** is a type of inheritance where a class is derived from another derived class, forming a chain of inheritance. Each class in the hierarchy inherits from its immediate parent and indirectly from all ancestors.
+
+### Characteristics
+- Creates an inheritance chain: Base → Derived → Further Derived
+- Each level adds its own members and functionality
+- Lower levels inherit from all upper levels
+- Represents hierarchical relationships (e.g., Animal → Mammal → Dog)
+
+### Inheritance Chain
+```
+    Person
+      ↓
+   Student
+      ↓
+GraduatedStudent
+```
+
+### Access Across Levels
+- `GraduatedStudent` can access:
+  - Its own members
+  - `public` and `protected` members of `Student`
+  - `public` and `protected` members of `Person`
+
+### Example from Code
+```cpp
+class Person{
+    private:
+        string nic_no;
+    
+    protected:
+        int age;
+        
+    public:
+        string name;
+        
+        Person(string n, int a, string nic): name(n), age(a), nic_no(nic){
+        }
+        
+        void introduce(){
+            cout<<"Name: "<<name<<" Age: "<<age<<endl;
+        }
+};
+
+class Student: public Person{
+    protected:
+        int rollNumber;
+    
+    public:
+        Student(string n, int a, string nic, int r): Person(n, a, nic), rollNumber(r){
+        }
+        
+        void study(){
+            cout<<"Roll No: "<<rollNumber<<endl;
+        }
+};
+
+class GraduatedStudent : public Student{
+    string fypTitle;
+    
+    public:
+        GraduatedStudent(string n, int a, string nic, int r, string fyp) 
+            : Student(n, a, nic, r), fypTitle(fyp){
+        }
+        
+        void displayGraduatedStudent(){
+            cout<<"Name: "<<name<<endl;          // From Person (public)
+            cout<<"Age: "<<age<<endl;            // From Person (protected)
+            cout<<"Roll Number: "<<rollNumber;   // From Student (protected)
+        }
+        
+        void displayFyp(){
+            cout<<"FYP: "<<fypTitle<<endl;
+        }
+};
+```
+
+### Usage
+```cpp
+GraduatedStudent gs("Ali", 20, "1233444", 101, "XYZ AI System");
+
+gs.introduce();    // From Person (level 1)
+gs.study();        // From Student (level 2)
+gs.displayFyp();   // From GraduatedStudent (level 3)
+```
+
+### Constructor Calling Order
+When creating a `GraduatedStudent` object:
+1. `Person` constructor is called first
+2. `Student` constructor is called second
+3. `GraduatedStudent` constructor is called last
+
+### Destructor Calling Order
+When destroying the object (reverse order):
+1. `GraduatedStudent` destructor is called first
+2. `Student` destructor is called second
+3. `Person` destructor is called last
+
+### Benefits
+- **Logical Hierarchy:** Models real-world relationships naturally
+- **Code Reusability:** Each level reuses code from all upper levels
+- **Incremental Specialization:** Each level adds specific features
+- **Maintainability:** Changes in base classes propagate through hierarchy
+
+### Key Points
+- Each derived class inherits from its immediate parent only
+- Inheritance accumulates down the chain
+- Use protected members to allow access across multiple levels
+- Constructor calls flow from base to derived
+- Destructor calls flow from derived to base
+
+---
+
+## 14. Multiple Inheritance
+**File:** `14-multiple-inheritance.cpp`
+
+### Definition
+**Multiple inheritance** is a type of inheritance where a class inherits from two or more base classes simultaneously. This allows a class to combine features from multiple parent classes.
+
+### Characteristics
+- A class can have multiple direct parent classes
+- Inherits members from all base classes
+- Combines functionality from different hierarchies
+- More complex than single inheritance
+
+### Syntax
+```cpp
+class Derived : public Base1, public Base2, public Base3 {
+    // Class body
+};
+```
+
+### Inheritance Structure
+```
+    Person          Player
+      ↓               ↓
+   Student ----→ GraduatedStudent
+```
+
+`GraduatedStudent` inherits from both `Student` (which inherits from `Person`) and `Player`.
+
+### Example from Code
+```cpp
+class Person{
+    private:
+        string nic_no;
+    
+    protected:
+        int age;
+        
+    public:
+        string name;
+        
+        Person(string n, int a, string nic): name(n), age(a), nic_no(nic){
+        }
+        
+        void introduce(){
+            cout<<"Name: "<<name<<" Age: "<<age<<endl;
+        }
+};
+
+class Student: public Person{
+    protected:
+        int rollNumber;
+    
+    public:
+        Student(string n, int a, string nic, int r): Person(n, a, nic), rollNumber(r){
+        }
+        
+        void study(){
+            cout<<"Roll No: "<<rollNumber<<endl;
+        }
+};
+
+class Player{
+    protected:
+        string game;
+    
+    public:
+        Player(string g): game(g){
+        }
+        
+        void displayGame(){
+            cout<<"Game: "<<game<<endl;
+        }
+};
+
+// Multiple Inheritance: inherits from both Student and Player
+class GraduatedStudent : public Student, public Player{
+    string fypTitle;
+    
+    public:
+        GraduatedStudent(string n, int a, string nic, int r, string g, string fyp) 
+            : Student(n, a, nic, r), Player(g), fypTitle(fyp){
+        }
+        
+        void displayGraduatedStudent(){
+            cout<<"Name: "<<name<<endl;          // From Person
+            cout<<"Age: "<<age<<endl;            // From Person
+            cout<<"Roll Number: "<<rollNumber;   // From Student
+        }
+        
+        void displayFyp(){
+            cout<<"FYP: "<<fypTitle<<endl;
+        }
+};
+```
+
+### Usage
+```cpp
+GraduatedStudent gs("Ali", 20, "1233444", 101, "Cricket", "XYZ AI System");
+
+gs.introduce();     // From Person (through Student)
+gs.study();         // From Student
+gs.displayGame();   // From Player
+gs.displayFyp();    // From GraduatedStudent
+```
+
+### Constructor Initialization
+All base class constructors must be called in the derived class constructor:
+```cpp
+GraduatedStudent(...) : Student(...), Player(...), fypTitle(fyp) {
+}
+```
+
+### Constructor Calling Order
+1. `Person` constructor (base of Student)
+2. `Student` constructor
+3. `Player` constructor
+4. `GraduatedStudent` constructor
+
+### Benefits
+- **Combine Features:** Merge functionality from unrelated classes
+- **Code Reuse:** Leverage multiple existing classes
+- **Flexibility:** Create complex objects from simpler components
+- **Real-World Modeling:** A person can be both a student and a player
+
+### Potential Issues (Advanced Topic)
+- **Diamond Problem:** When two base classes inherit from the same class
+- **Ambiguity:** If multiple base classes have members with the same name
+- **Complexity:** Harder to understand and maintain
+
+### When to Use
+- When a class genuinely needs features from multiple unrelated classes
+- When the relationship makes logical sense (e.g., StudentAthlete)
+- When avoiding code duplication is important
+
+### Key Points
+- List all base classes separated by commas after the colon
+- Initialize all base class constructors in the member initializer list
+- Derived class has members from all base classes
+- More powerful but more complex than single inheritance
+- Use judiciously to avoid unnecessary complexity
+
+---
+
 ## Compilation Instructions
 
 To compile any of the C++ files, use the following command:
@@ -811,6 +1168,9 @@ Follow the files in numerical order for a progressive learning experience:
 9. Explore composition relationships (`9-composition.cpp`)
 10. Understand aggregation relationships (`10-aggregation.cpp`)
 11. Master inheritance concepts (`11-inheritance.cpp`)
+12. Learn access specifiers in inheritance (`12-AccessSpecifier-Inheritance.cpp`)
+13. Explore multi-level inheritance (`13-multi-level-inheritance.cpp`)
+14. Understand multiple inheritance (`14-multiple-inheritance.cpp`)
 
 ---
 
@@ -848,6 +1208,16 @@ Follow the files in numerical order for a progressive learning experience:
 | Composition | "has-a" (strong) | Object member | Dependent | Car has Engine |
 | Aggregation | "has-a" (weak) | Pointer/reference | Independent | Department has Teacher |
 | Inheritance | "is-a" | Class derivation | N/A | Teacher is-a Person |
+
+### Types of Inheritance
+
+| Type | Description | Example | Complexity |
+|------|-------------|---------|------------|
+| Single | One base, one derived | Person → Teacher | Simple |
+| Multi-Level | Chain of inheritance | Person → Student → GraduatedStudent | Moderate |
+| Multiple | Multiple base classes | Student + Player → GraduatedStudent | Complex |
+| Hierarchical | One base, multiple derived | Person → Teacher, Person → Student | Moderate |
+| Hybrid | Combination of above | Various combinations | Very Complex |
 
 ### OOP Principles Covered
 
